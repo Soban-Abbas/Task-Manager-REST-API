@@ -12,6 +12,10 @@ const taskSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    deadline:{
+        type:Date,
+        required:true
+    },
     creator:{
         // type:mongoose.Schema.Types.ObjectId,
         // ref:'user',

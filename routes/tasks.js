@@ -31,7 +31,13 @@ router.post('/task', [
         .withMessage("Status is incorrect")
         .bail()
         .isLength({ max: 10 })
-        .withMessage("Status is incorrect")
+        .withMessage("Status is incorrect"),
+        check('deadline')
+        .notEmpty()
+        .bail()
+        .withMessage("Date is required")
+        .isDate()
+        .withMessage("Invalid Date")
 ]
     , taskControllers.createNewTask)
 router.get('/task/:taskId', taskControllers.getSingleTask)
@@ -62,8 +68,13 @@ router.patch('/updateTask/:taskId',
             .withMessage("Status is incorrect")
             .bail()
             .isLength({ max: 10 })
-            .withMessage("Status is incorrect")
-
+            .withMessage("Status is incorrect"),
+        check('deadline')
+            .notEmpty()
+            .bail()
+            .withMessage("Date is required")
+            .isDate()
+            .withMessage("Invalid Date")
     ]
     , taskControllers.updateTask);
 module.exports = router

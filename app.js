@@ -4,15 +4,17 @@ const { errorHandler }=require('./middleware/errorHandlingMiddleware')
 require('dotenv').config()
 const bodyParser = require('body-parser')
 const app=express();
+// Routes file imports
 const taskRoutes=require("./routes/tasks")
+const adminRoutes=require("./routes/admin")
+
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 
 
 //routes
 app.use(taskRoutes)
-
-
+app.use(adminRoutes)
 
 
 //global errorMiddleware

@@ -41,6 +41,7 @@ exports.createNewTask = async (req, res, next) => {
             title: req.body.title,
             discription: req.body.discription,
             status: req.body.status,
+            deadline: req.body.deadline,
             creator: "Ali"
         })
 
@@ -106,7 +107,7 @@ exports.updateTask = async (req, res, next) => {
         updateTask.title = req.body.title || updateTask.title;
         updateTask.discription = req.body.discription || updateTask.discription;
         updateTask.status = req.body.status || updateTask.status
-
+        updateTask.deadline = req.body.deadline || updateTask.deadline
         await updateTask.save();
         res.status(200).json({
             message: "task Updated Successfully"
