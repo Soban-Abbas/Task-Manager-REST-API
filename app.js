@@ -7,7 +7,7 @@ const app=express();
 // Routes file imports
 const taskRoutes=require("./routes/tasks")
 const adminRoutes=require("./routes/admin")
-
+const authRoutes=require("./routes/auth")
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 
@@ -15,7 +15,7 @@ app.use(bodyParser.json())
 //routes
 app.use(taskRoutes)
 app.use(adminRoutes)
-
+app.use(authRoutes);
 
 //global errorMiddleware
 app.use(errorHandler);
