@@ -17,10 +17,10 @@ const taskSchema=new mongoose.Schema({
         required:true
     },
     creator:{
-        // type:mongoose.Schema.Types.ObjectId,
-        // ref:'user',
-        // required:true
-        type: String 
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'user',
+        required:true
+    
     }
 },{timestamps:true});
 

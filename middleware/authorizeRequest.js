@@ -5,13 +5,13 @@ exports.authorizeRequest = (req, res, next) => {
         let header = req.headers.Authorization || req.headers.authorization
         if (!header || !header.startsWith('Bearer')) {
             return res.status(401).json({
-                message: "Unauthorized Request "
+                message: "Unauthorized Request Login First "
             })
         }
         const token = header.split(' ')[1];
         if (!token) {
             return res.status(401).json({
-                message: "Unauthorized Request"
+                message: "Unauthorized Request Login First "
             })
         }
 
@@ -26,7 +26,7 @@ exports.authorizeRequest = (req, res, next) => {
 
     } catch (error) {
         return res.status(401).json({
-            message:"Unauthorized Request "
+            message:"Unauthorized Request Login First  "
         })
         
     }

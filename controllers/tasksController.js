@@ -1,13 +1,13 @@
 const { validationResult } = require("express-validator")
 const taskModel = require("../models/taskModel");
 exports.getAllTasks = async (req, res, next) => {
-    return console.log(req.user);
+    
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
 
     try {
 
-        let tasks = await taskModel.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        let tasks = await taskModel.find({creator:req.user.userId}).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
         if (tasks.length === 0) {
             return res.status(404).json({
                 message: "No task found"
@@ -43,7 +43,7 @@ exports.createNewTask = async (req, res, next) => {
             discription: req.body.discription,
             status: req.body.status,
             deadline: req.body.deadline,
-            creator: "Ali"
+            creator:req.user.userId
         })
 
         await task.save();
@@ -109,6 +109,7 @@ exports.updateTask = async (req, res, next) => {
         updateTask.discription = req.body.discription || updateTask.discription;
         updateTask.status = req.body.status || updateTask.status
         updateTask.deadline = req.body.deadline || updateTask.deadline
+        updateTask.creator=req.user.userId
         await updateTask.save();
         res.status(200).json({
             message: "task Updated Successfully"
