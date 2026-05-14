@@ -1,11 +1,9 @@
 const userModel=require('../models/userModel')
 exports.getAllUsers=async(req,res,next)=>{
-console.log("hello")
 const page=req.query.page || 1;
 const limit=5;
 try {
     const users=await userModel.find({role:'user'}).skip((page-1)*limit).limit(limit);
-    console.log(users)
     if(users.length===0){
     return res.status(404).json({
             message:"Users not available",
