@@ -14,7 +14,7 @@ app.use(bodyParser.json())
 
 //routes
 app.use(taskRoutes)
-app.use(adminRoutes)
+app.use('/admin',adminRoutes)
 app.use(authRoutes);
 
 //global errorMiddleware
