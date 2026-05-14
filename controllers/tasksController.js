@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator")
 const taskModel = require("../models/taskModel");
 exports.getAllTasks = async (req, res, next) => {
+    return console.log(req.user);
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
 

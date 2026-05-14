@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const { authorizeRequest }=require("../middleware/authorizeRequest");
 const taskControllers = require('../controllers/tasksController')
 const { check } = require('express-validator')
-router.get('/task', taskControllers.getAllTasks)
+router.get('/task', authorizeRequest,taskControllers.getAllTasks)
 router.post('/task', [
     check('title')
         .notEmpty()

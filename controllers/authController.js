@@ -102,7 +102,7 @@ exports.postlogin = async(req, res, next) => {
             })
         }
 
-        let token=generateJwt();
+        let token=generateJwt(user.role,user._id);
 
         res.status(200).json({
             message:"Login Successfull",
