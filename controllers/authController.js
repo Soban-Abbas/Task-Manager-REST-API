@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const sendEmail = require('../util/sendEmail');
 const userModel = require('../models/userModel')
 const bcrypt = require('bcrypt');
+const { generateJwt }=require("../util/generate_jwt");
 exports.postSignup = async (req, res, next) => {
     try {
         const errors = validationResult(req)
@@ -28,7 +29,7 @@ exports.postSignup = async (req, res, next) => {
             throw error;
         }
         let to = req.body.email;
-        let from = `muhammadsobansoban49@gmail.com`;
+        let from = `${process.env.SenderMail}`;
         let subject = "WellCome to Task Manager ";
         let text = `Hi ${req.body.name}
         Welcome to Task Manager.
@@ -70,7 +71,7 @@ exports.postSignup = async (req, res, next) => {
 </body>
 </html>`
 
-        let emailMessage = await sendEmail({to,from,subject,text,html})
+        let emailMessage = await sendEmail({ to, from, subject, text, html })
         res.status(200).json({
             message: "User register successfully",
             savedUser
@@ -81,6 +82,39 @@ exports.postSignup = async (req, res, next) => {
     }
 }
 
-exports.postlogin = (req, res, next) => {
+exports.postlogin = async(req, res, next) => {
+
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const error = new Error("Validation Errors");
+            error.data = errors.array();
+            error.status = 401;
+            throw error;
+        }
+
+
+        let user = await userModel.findOne({ email: req.body.email })
+        let validPassword = await bcrypt.compare(req.body.password, user.password)
+        if (!validPassword) {
+            return res.status(401).json({
+                message: "wrong Email or Password"
+            })
+        }
+
+        let token=generateJwt();
+
+        res.status(200).json({
+            message:"Login Successfull",
+            token:token
+        })
+
+
+
+
+    } catch (error) {
+        throw error
+    }
+
 
 }
