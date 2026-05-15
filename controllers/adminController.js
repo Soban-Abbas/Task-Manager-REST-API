@@ -82,3 +82,32 @@ exports.getOneUserwithTask=async(req,res,next)=>{
     }
 
 }
+exports.deleteUser=async(req,res,next)=>{
+    try {
+
+        const user=await userModel.findById({_id:req.params.userId})
+        if(!user){
+          return   res.status(404).json({
+                message:"User Not exist"
+            })
+        }
+
+        const [deletedTasks, deletedUser] = await Promise.all([
+             taskModel.deleteMany({ creator: req.params.userId }),
+             userModel.deleteOne({ _id: req.params.userId })
+        ])
+
+        if (deletedTasks.deletedCount >= 0 && deletedUser.deletedCount===1){
+          return  res.status(202).json({
+                message:"user deleted Successfully"
+            })
+        }
+        res.status(404).json({
+            message:"user not deleted"
+        })
+        
+    } catch (error) {
+        next(error)
+    }
+
+}
