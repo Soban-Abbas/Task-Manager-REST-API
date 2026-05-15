@@ -2,7 +2,9 @@ const { validationResult } = require("express-validator");
 const sendEmail = require('../util/sendEmail');
 const userModel = require('../models/userModel')
 const bcrypt = require('bcrypt');
-const { generateJwt }=require("../util/generate_jwt");
+const { generateJwt } = require("../util/generate_jwt");
+const { passwordResetToken } = require('../util/passwordResetToken')
+const jwt = require("jsonwebtoken")
 exports.postSignup = async (req, res, next) => {
     try {
         const errors = validationResult(req)
@@ -82,7 +84,7 @@ exports.postSignup = async (req, res, next) => {
     }
 }
 
-exports.postlogin = async(req, res, next) => {
+exports.postlogin = async (req, res, next) => {
 
     try {
         const errors = validationResult(req);
@@ -102,11 +104,11 @@ exports.postlogin = async(req, res, next) => {
             })
         }
 
-        let token=generateJwt(user.role,user._id);
+        let token = generateJwt(user.role, user._id);
 
         res.status(200).json({
-            message:"Login Successfull",
-            token:token
+            message: "Login Successfull",
+            token: token
         })
 
 
@@ -114,6 +116,130 @@ exports.postlogin = async(req, res, next) => {
 
     } catch (error) {
         throw error
+    }
+
+
+}
+
+exports.forgetPassword = async (req, res, next) => {
+    try {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const error = new Error("validation Error");
+            error.status = 422;
+            error.data = errors.array();
+            throw error;
+        }
+        const email = req.body.email;
+
+        const user = await userModel.findOne({ email: email })
+        if (!user) {
+            return res.status(404).json({
+                message: "User Not found "
+            })
+        }
+
+        const token = passwordResetToken(user._id);
+        const resetURL = `http://localhost:8080/reset-password/${token}/${user._id}`
+
+        let to = email;
+        let from = `${process.env.SenderMail}`;
+        let subject = "Reset Password ";
+        let text = `Hi
+       You are receiving this because you (or someone else) have requested the reset of the password for your account.
+      Please click on the following link, or paste this into your browser to complete the process:
+      ${resetURL}
+      If you did not request this, please ignore this email and your password will remain unchanged.,
+        Task Manager Team`;
+        let html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+</head>
+<body style="font-family: Arial, sans-serif; background:#f4f4f4; padding:40px;">
+
+  <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px; text-align:center;">
+
+    <h2>Welcome to Task Manager</h2>
+
+    <p>Hi,</p>
+
+    <p>Reset Your Password.</p>
+
+    <a href=${resetURL}
+       style="display:inline-block;
+              margin-top:20px;
+              padding:12px 24px;
+              background:#111827;
+              color:white;
+              text-decoration:none;
+              border-radius:6px;">
+      Reset Password
+    </a>
+
+  </div>
+
+</body>
+</html>`
+
+
+
+        const emailMessage = await sendEmail({ to, from, subject, text, html });
+
+        res.status(200).json({
+            message: "Check Email to reset password",
+            resetURL
+        })
+
+
+
+
+
+
+    } catch (error) {
+        next(error)
+
+    }
+
+}
+
+exports.resetPassword = async (req, res, next) => {
+    try {
+
+
+        const errors=validationResult(req);
+        if(!errors.isEmpty()){
+            const error = new Error("validation Error");
+            error.status = 422;
+            error.data = errors.array();
+            throw error;
+        }
+        const { userId, token } = req.params;
+        const newPassword = req.body.password;
+        const user = await userModel.findById({ _id: userId })
+        if (!user) {
+            return res.status(404).json({
+                message: "User Not  found"
+            })
+        }
+        const secretKey = process.env.passwordResetSecretKey;
+        const verifyToken = jwt.verify(token, secretKey);
+        const salt = 10;
+        const encryptedPassword = await bcrypt.hash(newPassword, salt)
+
+      user.password=encryptedPassword;
+      await user.save();
+      res.status(200).json({
+        message:"Password Updated Successfully"
+      })
+
+        
+
+
+    } catch (error) {
+        next(error)
     }
 
 
