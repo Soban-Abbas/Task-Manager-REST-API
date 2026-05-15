@@ -60,3 +60,25 @@ try {
 }
     
 }
+exports.getOneUserwithTask=async(req,res,next)=>{
+    try {
+        const [user, tasks] = await Promise.all([
+            await userModel.findById({_id:req.params.userId}).select('_id name email'),
+            await taskModel.find({creator:req.params.userId})
+        ])
+        if(!user || !tasks){
+           return res.status(404).json({
+                message:"Not Found"
+            })
+        }
+
+        res.status(200).json({
+            message:"Succesfully found user with Tasks",
+            user,
+            tasks
+        })
+    } catch (error) {
+        next(error)
+    }
+
+}
